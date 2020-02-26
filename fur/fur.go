@@ -3,7 +3,8 @@
 package fur
 
 import (
-	"golang.org/x/xerrors"
+	"errors"
+	"fmt"
 )
 
 // Tags is a map with key/value pairs as fields to an error.
@@ -27,7 +28,7 @@ func (e Error) Error() string {
 
 // Unwrap unwraps the underlying error.
 func (e Error) Unwrap() error {
-	return xerrors.Unwrap(e.Err)
+	return errors.Unwrap(e.Err)
 }
 
 // Tags returns the tags for this error.
@@ -43,7 +44,7 @@ func (e Error) Tag(key string, value interface{}) Error {
 
 // Errorf formats a new Error with empty tags.
 func Errorf(format string, args ...interface{}) Error {
-	err := xerrors.Errorf(format, args...)
+	err := fmt.Errorf(format, args...)
 	return Error{err, Tags{}}
 }
 

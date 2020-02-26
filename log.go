@@ -25,6 +25,7 @@ package log
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -32,8 +33,6 @@ import (
 	"runtime"
 	"strings"
 	"time"
-
-	"golang.org/x/xerrors"
 
 	"github.com/mjl-/log/fur"
 )
@@ -165,12 +164,12 @@ func (l *Logger) write(format string, args []interface{}, calldepth int) string 
 		}
 	}
 
-	err := xerrors.Errorf(format, args...)
+	err := fmt.Errorf(format, args...)
 	b.WriteString(err.Error())
-	err = xerrors.Unwrap(err)
+	err = errors.Unwrap(err)
 
 	prefix := " ("
-	for ; err != nil; err = xerrors.Unwrap(err) {
+	for ; err != nil; err = errors.Unwrap(err) {
 		e, ok := err.(fur.Tagger)
 		if !ok {
 			continue
@@ -194,7 +193,7 @@ func (l *Logger) write(format string, args []interface{}, calldepth int) string 
 func (l *Logger) writeJSON(format string, args []interface{}, calldepth int) string {
 	o := map[string]interface{}{}
 
-	err := xerrors.Errorf(format, args...)
+	err := fmt.Errorf(format, args...)
 	msg := err.Error()
 	o["message"] = msg
 
@@ -216,13 +215,13 @@ func (l *Logger) writeJSON(format string, args []interface{}, calldepth int) str
 		}
 	}
 
-	err = xerrors.Unwrap(err)
+	err = errors.Unwrap(err)
 	if err == nil {
 		o["level"] = "info"
 	} else {
 		o["level"] = "error"
 	}
-	for ; err != nil; err = xerrors.Unwrap(err) {
+	for ; err != nil; err = errors.Unwrap(err) {
 		e, ok := err.(fur.Tagger)
 		if !ok {
 			continue
